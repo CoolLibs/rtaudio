@@ -1,3 +1,4 @@
+#include <memory>
 /************************************************************************/
 /*! \class RtAudio
     \brief Realtime audio i/o C++ classes.
@@ -432,13 +433,6 @@ class RTAUDIO_DLL_PUBLIC RtAudio
   */
   RtAudio( RtAudio::Api api=UNSPECIFIED, RtAudioErrorCallback&& errorCallback=0 );
 
-  //! The destructor.
-  /*!
-    If a stream is running or open, it will be stopped and closed
-    automatically.
-  */
-  ~RtAudio();
-
   //! Returns the audio API specifier for the current instance of RtAudio.
   RtAudio::Api getCurrentApi( void );
 
@@ -643,7 +637,7 @@ class RTAUDIO_DLL_PUBLIC RtAudio
  protected:
 
   void openRtApi( RtAudio::Api api );
-  RtApi *rtapi_;
+  std::unique_ptr<RtApi> rtapi_;
 };
 
 // Operating system dependent thread functionality.

@@ -518,45 +518,43 @@ RtAudio::Api RtAudio :: getCompiledApiByDisplayName( const std::string &name )
 
 void RtAudio :: openRtApi( RtAudio::Api api )
 {
-  if ( rtapi_ )
-    delete rtapi_;
   rtapi_ = 0;
 
 #if defined(__UNIX_JACK__)
   if ( api == UNIX_JACK )
-    rtapi_ = new RtApiJack();
+    rtapi_ = std::make_unique<RtApiJack>();
 #endif
 #if defined(__LINUX_ALSA__)
   if ( api == LINUX_ALSA )
-    rtapi_ = new RtApiAlsa();
+    rtapi_ = std::make_unique<RtApiAlsa>();
 #endif
 #if defined(__LINUX_PULSE__)
   if ( api == LINUX_PULSE )
-    rtapi_ = new RtApiPulse();
+    rtapi_ = std::make_unique<RtApiPulse>();
 #endif
 #if defined(__LINUX_OSS__)
   if ( api == LINUX_OSS )
-    rtapi_ = new RtApiOss();
+    rtapi_ = std::make_unique<RtApiOss>();
 #endif
 #if defined(__WINDOWS_ASIO__)
   if ( api == WINDOWS_ASIO )
-    rtapi_ = new RtApiAsio();
+    rtapi_ = std::make_unique<RtApiAsio>();
 #endif
 #if defined(__WINDOWS_WASAPI__)
   if ( api == WINDOWS_WASAPI )
-    rtapi_ = new RtApiWasapi();
+    rtapi_ = std::make_unique<RtApiWasapi>();
 #endif
 #if defined(__WINDOWS_DS__)
   if ( api == WINDOWS_DS )
-    rtapi_ = new RtApiDs();
+    rtapi_ = std::make_unique<RtApiDs>();
 #endif
 #if defined(__MACOSX_CORE__)
   if ( api == MACOSX_CORE )
-    rtapi_ = new RtApiCore();
+    rtapi_ = std::make_unique<RtApiCore>();
 #endif
 #if defined(__RTAUDIO_DUMMY__)
   if ( api == RTAUDIO_DUMMY )
-    rtapi_ = new RtApiDummy();
+    rtapi_ = std::make_unique<RtApiDummy>();
 #endif
 }
 
@@ -608,12 +606,6 @@ RtAudio :: RtAudio( RtAudio::Api api, RtAudioErrorCallback&& errorCallback )
   else
     std::cerr << '\n' << errorMessage << '\n' << std::endl;
   abort();
-}
-
-RtAudio :: ~RtAudio()
-{
-  if ( rtapi_ )
-    delete rtapi_;
 }
 
 RtAudioErrorType RtAudio :: openStream( RtAudio::StreamParameters *outputParameters,
