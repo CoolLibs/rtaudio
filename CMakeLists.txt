@@ -1,5 +1,5 @@
 # Set minimum CMake required version for this project.
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 # Define a C++ project.
 project(RtAudio LANGUAGES CXX)
@@ -280,12 +280,12 @@ target_compile_definitions(rtaudio PRIVATE RTAUDIO_EXPORT)
 target_link_libraries(rtaudio ${LINKLIBS})
 
 # Subdirs
-include(CTest)
 
 if (NOT DEFINED RTAUDIO_BUILD_TESTING OR RTAUDIO_BUILD_TESTING STREQUAL "")
   set(RTAUDIO_BUILD_TESTING ${BUILD_TESTING})
 endif()
 if (RTAUDIO_BUILD_TESTING)
+  include(CTest)
   add_subdirectory(tests)
 endif()
 
@@ -343,8 +343,8 @@ write_basic_package_version_file(
 
 install(
   FILES
-    ${CMAKE_BINARY_DIR}/RtAudioConfig.cmake
-    ${CMAKE_BINARY_DIR}/RtAudioConfig-version.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig-version.cmake
   DESTINATION
     ${RTAUDIO_CMAKE_DESTINATION}
 )
