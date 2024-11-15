@@ -72,9 +72,24 @@ std::string convertCharPointerToStdString(const char *text)
 }
 
 template<> inline
-std::string convertCharPointerToStdString(const wchar_t *text)
+std::string convertCharPointerToStdString(const wchar_t* text)
 {
+#if defined(_MSC_VER)
+  if (!text)
+    return std::string();
+  const int wchars = (int)wcslen(text);
+  // how many characters are required after conversion?
+  const int nchars = WideCharToMultiByte(CP_UTF8, 0, text, wchars, 0, 0, 0, 0);
+  if (!nchars)
+    return std::string();
+  // create buffer
+  std::string nret(nchars, 0);
+  // do the conversion
+  WideCharToMultiByte(CP_UTF8, 0, text, wchars, &nret[0], nchars, 0, 0);
+  return nret;
+#else
   return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>{}.to_bytes(text);
+#endif
 }
 
 #if defined(_MSC_VER)
@@ -1774,7 +1789,7 @@ bool RtApiCore :: probeDeviceOpen( unsigned int deviceId, StreamMode mode, unsig
   stream_.deviceFormat[mode] = RTAUDIO_FLOAT32;
 
   if ( streamCount == 1 )
-    stream_.nDeviceChannels[mode] = description.mChannelsPerFrame;
+    stream_.nDeviceChannels[mode] = streamChannels;
   else // multiple streams
     stream_.nDeviceChannels[mode] = channels;
   stream_.nUserChannels[mode] = channels;
@@ -1973,7 +1988,7 @@ void RtApiCore :: closeStream( void )
         }
       }
 
-      if ( handle->disconnectListenerAdded[0] ) {
+      if ( handle->disconnectListenerAdded[1] ) {
         property.mSelector = kAudioDevicePropertyDeviceIsAlive;
         if (AudioObjectRemovePropertyListener( handle->id[1], &property, streamDisconnectListener, (void *) &stream_.callbackInfo ) != noErr) {
           errorText_ = "RtApiCore::closeStream(): error removing disconnect property listener!";
